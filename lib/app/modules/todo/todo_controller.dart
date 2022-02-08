@@ -26,13 +26,15 @@ class TodoController extends GetxController {
   void load() async {
     List<Todo> list = await repository.load(targetDate);
     todos.addAll(list);
-    todos.sort((a, b) => a.id.compareTo(b.id));
-    todos.sort((a, b) => a.isChecked ? 1 : -1);
+
+    _sort();
   }
 
   void save(String title) async {
     Todo todo = await repository.save(title, targetDate);
     todos.insert(0, todo);
+
+    _sort();
   }
 
   void updateTodo(int id, String title, bool isChecked) async {
@@ -41,15 +43,19 @@ class TodoController extends GetxController {
       final int index = todos.indexWhere((element) => element.id == id);
       if (index != -1) {
         todos[index] = todo;
-        todos.sort((a, b) => a.id.compareTo(b.id));
-        todos.sort((a, b) => a.isChecked ? 1 : -1);
+        _sort();
       }
     }
   }
 
   void delete(int id) async {
-    int deleteID = await repository.delete(id);
+    await repository.delete(id);
     updateFocusDay(focusedDay.value);
+  }
+
+  void _sort() {
+    todos.sort((a, b) => a.id.compareTo(b.id));
+    todos.sort((a, b) => a.isChecked ? 1 : -1);
   }
 
   void updateFocusDay(DateTime selectedDay) {
